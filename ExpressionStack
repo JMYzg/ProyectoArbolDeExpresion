@@ -1,0 +1,35 @@
+public class ExpressionStack<T>
+        extends AbstractExpressionStack<T> {
+    Node<T> head = null;
+    int size = 0;
+
+    @Override
+    public void push(T value) {
+        head = new Node<>(value, head);
+        size++;
+    }
+
+    @Override
+    public T pop() {
+        Node<T> aux = head;
+        head = head.next;
+        aux.next = null;
+        size--;
+        return aux.value;
+    }
+
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    private static class Node<T> {
+        T value;
+        Node<T> next;
+
+        public Node(T value, Node<T> next) {
+            this.value = value;
+            this.next = next;
+        }
+    }
+
+}
