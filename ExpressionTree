@@ -1,0 +1,152 @@
+public class ExpressionTree
+        extends AbstractExpressionTree {
+
+    Node root = null;
+
+    @Override
+    public double solveExpression(String expression) {
+        double result;
+        ExpressionStack<Double> numbers = new ExpressionStack<>();
+        root = createTree(expression);
+        System.out.print("postfix notation: ");
+        postOrder(root, numbers);
+        System.out.println();
+        result = numbers.pop();
+        return result;
+    }
+
+    private Node createTree(String expression) {
+        if (expression.length() == 1) {
+            return new Node(expression.charAt(0), 0);
+        } else {
+            Node pivot = new Node('\u0000', 0);
+            for (int i = 1; i < 3; i++) {
+                if (pivot.value == '\u0000') {
+                    if (expression.charAt(0) == '(' && expression.charAt(expression.length() - 1) == ')' && singleExpression(expression)) {
+                        String content = expression.substring(1, expression.length() - 1);
+                        while (singleExpression(content) && content.length() != 1) {
+                            content = content.substring(1, content.length() - 1);
+                        }
+                        if (content.length() == 1) return new Node(content.charAt(0), 0);
+                        checkHierarchy(content, pivot, i);
+                        expression = content;
+                    } else checkHierarchy(expression, pivot, i);
+                }
+            }
+
+            pivot.left = createTree(expression.substring(0, pivot.position));
+            pivot.right = createTree(expression.substring(pivot.position + 1));
+            return pivot;
+        }
+    }
+
+    private void checkHierarchy(String expression, Node pivot, int hierarchy) {
+        int countOpen = 0;
+        int countClosed = 0;
+        for (int i = 0; i < expression.length(); i++) {
+            if (expression.charAt(i) == '(') {
+                countOpen++;
+            } else if (expression.charAt(i) == ')') {
+                countClosed++;
+            } else if (countOpen == countClosed) {
+                if (isOperator(expression.charAt(i)) && hierarchy(expression.charAt(i)) == hierarchy) {
+                    pivot.value = expression.charAt(i);
+                    pivot.position = i;
+                }
+            }
+        }
+    }
+
+
+    private void postOrder(Node root, ExpressionStack<Double> numbers) {
+        if (root == null) return;
+        postOrder(root.left, numbers);
+        postOrder(root.right, numbers);
+        if (isOperator(root.value) && !numbers.isEmpty()) {
+            double result = 0;
+            double b = numbers.pop();
+            double a = numbers.pop();
+
+            switch (root.value) {
+                case'+':
+                    result = a + b;
+                    break;
+                case '-':
+                    result = a - b;
+                    break;
+                case '*':
+                    result = a * b;
+                    break;
+                case '/':
+                    result = a / b;
+                    break;
+                default:
+                    break;
+            }
+            numbers.push(result);
+        }
+        else if (root.left == null && root.right == null) {
+            double doubleValue = Character.getNumericValue(root.value);
+            numbers.push(doubleValue);
+        }
+        System.out.print(root.value);
+    }
+
+    public boolean checkParenthesis(String expression) {
+        int countOpen = 0;
+        int countClose = 0;
+        for (char c : expression.toCharArray()) {
+            if (c == '(') {
+                countOpen++;
+            }
+            if (c == ')') {
+                countClose++;
+            }
+        }
+        return countOpen == countClose;
+    }
+
+    public boolean singleExpression(String expression) {
+        int countOpen = 0;
+        int countClose = 0;
+        for (int i = 0; i < expression.length(); i++) {
+            if (expression.toCharArray()[i] == '(') {
+                countOpen++;
+            }
+            if (expression.toCharArray()[i] == ')') {
+                countClose++;
+            }
+            if (countOpen == countClose && i != expression.length() - 1) {
+                return false;
+            }
+        }
+        return countOpen == countClose;
+    }
+
+    public boolean isOperator(char value) {
+        return value == '+' || value == '-' || value == '*' || value == '/';
+    }
+
+    public int hierarchy(char c) {
+        return switch (c) {
+            case '+', '-' -> 1;
+            case '*', '/' -> 2;
+            default -> 0;
+        };
+
+    }
+
+    private static class Node {
+        int position;
+        char value;
+        Node left;
+        Node right;
+
+        public Node(char value, int position) {
+            this.position = position;
+            this.value = value;
+            left = null;
+            right = null;
+        }
+    }
+}
