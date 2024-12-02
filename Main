@@ -1,0 +1,17 @@
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ExpressionTree bt = new ExpressionTree();
+        System.out.print("Enter the expression: ");
+        String expression = sc.nextLine();
+
+        if (!bt.checkParenthesis(expression)) {
+            throw new ArithmeticException("Parenthesis is missed, check the expression again...");
+        } else {
+            System.out.println("Result: " + bt.solveExpression(expression));
+        }
+    }
+}
