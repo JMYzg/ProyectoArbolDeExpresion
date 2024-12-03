@@ -16,18 +16,17 @@ public class ExpressionTree
     }
 
     private Node createTree(String expression) {
-        if (expression.length() == 1) {
-            return new Node(expression.charAt(0), 0);
-        } else {
-            Node pivot = new Node('\u0000', 0);
+        if (isNumber(expression) && !betweenParenthesis(expression)) return new Node(expression, 0);
+        else {
+            Node pivot = new Node(null, 0);
             for (int i = 1; i < 3; i++) {
-                if (pivot.value == '\u0000') {
-                    if (expression.charAt(0) == '(' && expression.charAt(expression.length() - 1) == ')' && singleExpression(expression)) {
+                if (pivot.value == null) {
+                    if (betweenParenthesis(expression) && singleExpression(expression)) {
                         String content = expression.substring(1, expression.length() - 1);
                         while (singleExpression(content) && content.length() != 1) {
                             content = content.substring(1, content.length() - 1);
                         }
-                        if (content.length() == 1) return new Node(content.charAt(0), 0);
+                        if (isNumber(content)) return new Node(content, 0);
                         checkHierarchy(content, pivot, i);
                         expression = content;
                     } else checkHierarchy(expression, pivot, i);
@@ -50,34 +49,33 @@ public class ExpressionTree
                 countClosed++;
             } else if (countOpen == countClosed) {
                 if (isOperator(expression.charAt(i)) && hierarchy(expression.charAt(i)) == hierarchy) {
-                    pivot.value = expression.charAt(i);
+                    pivot.value = expression.substring(i , i + 1);
                     pivot.position = i;
                 }
             }
         }
     }
 
-
     private void postOrder(Node root, ExpressionStack<Double> numbers) {
         if (root == null) return;
         postOrder(root.left, numbers);
         postOrder(root.right, numbers);
-        if (isOperator(root.value) && !numbers.isEmpty()) {
+        if (isOperator(root.value.charAt(0)) && !numbers.isEmpty()) {
             double result = 0;
             double b = numbers.pop();
             double a = numbers.pop();
 
             switch (root.value) {
-                case'+':
+                case "+":
                     result = a + b;
                     break;
-                case '-':
+                case "-":
                     result = a - b;
                     break;
-                case '*':
+                case "*":
                     result = a * b;
                     break;
-                case '/':
+                case "/":
                     result = a / b;
                     break;
                 default:
@@ -86,10 +84,10 @@ public class ExpressionTree
             numbers.push(result);
         }
         else if (root.left == null && root.right == null) {
-            double doubleValue = Character.getNumericValue(root.value);
+            double doubleValue = Double.parseDouble(root.value);
             numbers.push(doubleValue);
         }
-        System.out.print(root.value);
+        System.out.print(root.value + " ");
     }
 
     public boolean checkParenthesis(String expression) {
@@ -133,16 +131,26 @@ public class ExpressionTree
             case '*', '/' -> 2;
             default -> 0;
         };
+    }
 
+    private boolean isNumber(String expression) {
+        for (char c : expression.toCharArray()) {
+            if(isOperator(c)) return false; //&& c != '(' || c != ')'
+        }
+        return true;
+    }
+
+    private boolean betweenParenthesis(String expression) {
+        return expression.charAt(0) == '(' && expression.charAt(expression.length() - 1) == ')';
     }
 
     private static class Node {
         int position;
-        char value;
+        String value;
         Node left;
         Node right;
 
-        public Node(char value, int position) {
+        public Node(String value, int position) {
             this.position = position;
             this.value = value;
             left = null;
