@@ -32,7 +32,8 @@ public class Main {
                 };
 
         for (String expression : cases) {
-            System.out.println(expressionTree.solveExpression(expression));
+            System.out.println("Expression: " + expression);
+            System.out.println("Result: " + expressionTree.solveExpression(expression) + "\n");
         }
     }
 }
