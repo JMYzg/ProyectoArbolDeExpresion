@@ -1,17 +1,38 @@
 import java.util.Scanner;
 
 public class Main {
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ArithmeticException {
         Scanner sc = new Scanner(System.in);
         ExpressionTree expressionTree = new ExpressionTree();
         System.out.print("Enter the expression: ");
         String expression = sc.nextLine();
 
-        if (!expressionTree.checkParenthesis(expression)) {
-            throw new ArithmeticException("Parenthesis is missed, check the expression again...");
+        if (expression.isEmpty() || !expressionTree.isOperable(expression)) {
+            throw new ArithmeticException("Not a valid expression");
+        } else if (!expressionTree.areParenthesisBalanced(expression)) {
+            throw new ArithmeticException("Parenthesis are not balanced");
         } else {
             System.out.println("Result: " + expressionTree.solveExpression(expression));
+        }
+        // test(expressionTree);
+    }
+
+    public static void test(ExpressionTree expressionTree) {
+        String[] cases = {
+                "((123)/45+(69/13)-2)",
+                "(((1)))",
+                "((123))",
+                "123456789*10",
+                "5*(3+2)+(8/2)",
+                "((2+3)*(6-1))/(2+8-5)*2",
+                "3.1415*(25)*25",
+                "1/0",
+                "(0-10)*(0-5)",
+                "69.9/(0-13.9)"
+                };
+
+        for (String expression : cases) {
+            System.out.println(expressionTree.solveExpression(expression));
         }
     }
 }
