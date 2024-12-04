@@ -1,4 +1,5 @@
 abstract public class AbstractExpressionStack<T> {
     abstract public void push(T value);
     abstract public T pop();
+    abstract public boolean isEmpty();
 }
